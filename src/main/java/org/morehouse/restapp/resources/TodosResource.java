@@ -63,13 +63,17 @@ public class TodosResource {
 	//         Note that id will be auto-generated 
 	//            in the Todos database table
 	// Accept: application/json
-	public Todo createTodo(@RequestBody Todo todo) {
+	
+	@RequestMapping(method = RequestMethod.POST, consumes = { "application/json" })
+	
+	public Todo createTodo(@RequestBody Todo todo) 
+	{
 		Todo savedTodo = todoRepository.save(todo);
 		return savedTodo;
 	}
 	
 	// TODO: Use the @RequestMapping annotation:
-	//       Define method for a DELETE request
+	//       Define method for a 3DELETE request
 	//  	 Define the path so that the todo id can be passed as parameter in the URL
 	// To test: http://localhost:7070/morehouse/restapp/todos/<id>
 	//    Note: Make sure the id you pass exists in the Todo table
@@ -96,10 +100,18 @@ public class TodosResource {
 		if (!todoOptional.isPresent())
 			return ResponseEntity.notFound().build();
 
+		if (!validateUpdate(todoOptional.get(), todo)) {
+			return ResponseEntity.badRequest().build();
+		}
+		
 		todo.setId(id);
 		
 		todoRepository.save(todo);
 
 		return ResponseEntity.noContent().build();
+	}
+	
+	static boolean validateUpdate(Todo existing, Todo update) {
+		return update.getAssignee() != null;
 	}
 }
